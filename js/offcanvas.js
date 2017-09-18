@@ -49,7 +49,7 @@
         this.options.disableScrolling = this.options.disablescrolling
         delete this.options.disablescrolling
     }
-    
+
     if (this.options.toggle) this.toggle()
   }
 
@@ -131,13 +131,6 @@
   }
 
   OffCanvas.prototype.slide = function (elements, offset, callback) {
-    // Use jQuery animation if CSS transitions aren't supported
-    if (!$.support.transition) {
-      var anim = {}
-      anim[this.placement] = "+=" + offset
-      return elements.animate(anim, 350, callback)
-    }
-
     var placement = this.placement
     var opposite = this.opposite(placement)
 
@@ -149,9 +142,7 @@
         $(this).css(opposite, (parseInt($(this).css(opposite), 10) || 0) - offset)
     })
 
-    this.$element
-      .one($.support.transition.end, callback)
-      .emulateTransitionEnd(350)
+    this.$element.one("transitionend", callback);
   }
 
   OffCanvas.prototype.disableScrolling = function() {
@@ -288,8 +279,6 @@
     var time = 150
 
     if (this.state == 'slide-in') {
-      var doAnimate = $.support.transition
-
       this.$backdrop = $('<div class="modal-backdrop fade" />')
       if (this.options.backdrop) {
         this.$backdrop.addClass('allow-navbar')
@@ -308,29 +297,16 @@
 
       this.$backdrop.addClass('in')
       this.$backdrop.on('click.bs', $.proxy(this.autohide, this))
-
-      doAnimate ?
-        this.$backdrop
-        .one($.support.transition.end, callback)
-        .emulateTransitionEnd(time) :
-        callback()
+      this.$backdrop.one('transitionend', callback)
     } else if (this.state == 'slide-out' && this.$backdrop) {
       this.$backdrop.removeClass('in');
       $('body').off('touchmove.bs');
       var self = this;
-      if ($.support.transition) {
-        this.$backdrop
-          .one($.support.transition.end, function() {
-            self.$backdrop.remove();
-            callback()
-            self.$backdrop = null;
-          })
-        .emulateTransitionEnd(time);
-      } else {
-        this.$backdrop.remove();
-        this.$backdrop = null;
-        callback();
-      }
+      this.$backdrop.one('transitionend', function() {
+        self.$backdrop.remove();
+        callback()
+        self.$backdrop = null;
+      });
 
       if (this.options.canvas && $(this.options.canvas)[0] !== $('body')[0]) {
         var canvas = this.options.canvas

@@ -98,7 +98,6 @@ module.exports = function (grunt) {
       },
       bootstrap: {
         src: [
-          'js/transition.js',
           'js/offcanvas.js',
           'js/rowlink.js',
           'js/inputmask.js',

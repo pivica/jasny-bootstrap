@@ -12,28 +12,32 @@
   @include offcanvas;
 }
 
-@media (max-width: $screen-xs-max) {
+@include media-breakpoint-down('xs') {
   .offcanvas-xs {
     @include offcanvas;
   }
 }
-@media (max-width: $screen-sm-max) {
+@include media-breakpoint-down('sm') {
   .offcanvas-sm {
     @include offcanvas;
   }
 }
-@media (max-width: $screen-md-max) {
+@include media-breakpoint-down('md') {
   .offcanvas-md {
     @include offcanvas;
   }
 }
-.offcanvas-lg {
+@include media-breakpoint-down('lg') {
+  .offcanvas-lg {
+    @include offcanvas;
+  }
+}
+.offcanvas-xl {
   @include offcanvas;
 }
 
 .canvas-sliding {
-  -webkit-transition: top 0.35s, left 0.35s, bottom 0.35s, right 0.35s;
-          transition: top 0.35s, left 0.35s, bottom 0.35s, right 0.35s;
+  transition: top 0.35s, left 0.35s, bottom 0.35s, right 0.35s;
 }
 
 .offcanvas-clone {

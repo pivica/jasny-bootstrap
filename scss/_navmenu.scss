@@ -13,7 +13,7 @@
   height: auto;
   border-width: 1px;
   border-style: solid;
-  border-radius: $border-radius-base;
+  border-radius: $border-radius;
 }
 // Fixed iphone with disableScrolling
 .lockIphone {
@@ -34,7 +34,7 @@
 .navmenu-fixed-right,
 .navbar-offcanvas {
   position: fixed;
-  z-index: $zindex-navmenu-fixed;
+  z-index: $zindex-fixed;
   top: 0;
   bottom: 0;
   overflow-y: auto;
@@ -76,7 +76,7 @@
     margin: 0;
   }
 
-  @media (min-width: $grid-float-breakpoint) {
+  @media (min-width: $responsive-break) {
     width: auto;
     border-top: 0;
     box-shadow: none;
@@ -91,10 +91,10 @@
 
     // Account for first and last children spacing
     .navbar-nav.navbar-left:first-child {
-      margin-left: -$navbar-padding-horizontal;
+      margin-left: -$navbar-padding-x;
     }
     .navbar-nav.navbar-right:last-child {
-      margin-right: -$navbar-padding-horizontal;
+      margin-right: -$navbar-padding-y;
     }
 
     .navmenu-brand {
@@ -107,9 +107,9 @@
 
 .navmenu-brand {
   display: block;
-  font-size: $font-size-large;
-  line-height: $line-height-computed;
-  padding: $nav-link-padding;
+  font-size: $font-size-lg;
+  line-height: $line-height-base;
+  padding: $nav-link-padding-y $nav-link-padding-x;
   &:hover,
   &:focus {
     text-decoration: none;

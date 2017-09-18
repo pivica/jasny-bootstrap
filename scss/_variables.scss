@@ -8,16 +8,18 @@
 $zindex-navmenu-fixed:     $zindex-modal;
 $zindex-alert-fixed:       1035;
 
-$container-smooth:         $container-lg;
+$container-smooth:         map-get($container-max-widths, 'xl');
 
-$alert-fixed-width:        $screen-md-min;
+$alert-fixed-width:        map-get($grid-breakpoints, 'lg');
+
+$responsive-break:         'md' !default;
 
 
 //== Navmenu
 
 // Basics of a navmenu
 $navmenu-width:                     300px;
-$navmenu-margin-vertical:           (0.5 * $line-height-computed);
+$navmenu-margin-vertical:           (0.5 * $font-size-base);
 $navmenu-default-color:             #777;
 $navmenu-default-bg:                #f8f8f8;
 $navmenu-default-border:            darken($navmenu-default-bg, 6.5%);
