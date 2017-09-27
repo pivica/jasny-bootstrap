@@ -15,7 +15,7 @@
     },
     "license": "Apache-2.0",
     "require": {
-      "twbs/bootstrap" : ">=4.0.0-beta1"
+      "twbs/bootstrap": ">=4.0.0-beta"
     },
     "extra": {
       "component": {
