@@ -35,8 +35,10 @@
     }
 
     if (this.options.autohide && !this.options.modal) {
-      var eventName = (navigator.userAgent.match(/(iPad|iPhone)/i) === null) ? 'click' : 'touchstart'
-      $(document).on('click touchstart', $.proxy(this.autohide, this))
+      //var eventName = (navigator.userAgent.match(/(iPad|iPhone)/i) === null) ? 'click' : 'touchstart'
+      // Removed for now touchstart - its making a big problem for iOS when
+      // you click to collapse navbar. For some reason page will be reloaded.
+      $(document).on('click', $.proxy(this.autohide, this))
     }
 
     // Backdrop is added to dropdown on it's open, if device is touchable (or desctop FF, https://github.com/twbs/bootstrap/issues/13748)
