@@ -21,6 +21,7 @@
 
   var bodyPaddingRight = false;
   var bodyPaddingTimeout = 40;
+  var prop = 'margin-right'
 
   // OFFCANVAS PUBLIC CLASS DEFINITION
   // =================================
@@ -152,7 +153,6 @@
 
   OffCanvas.prototype.disableScrolling = function() {
     var bodyWidth = $('body').width()
-    var prop = 'padding-right'
 
     if ($('body').data('offcanvas-style') === undefined) {
       $('body').data('offcanvas-style', $('body').attr('style') || '')
@@ -221,7 +221,7 @@
       // Remove body padding which looks ugly after sliding is fully in.
       if (bodyPaddingRight) {
         setTimeout(function() {
-          $('body').css('padding-right', 0)
+          $('body').css(prop, 0)
         }, bodyPaddingTimeout)
       }
     }
@@ -278,7 +278,7 @@
       // ugly horizontal body jumping when scrollbar is enabled again.
       if (bodyPaddingRight) {
         setTimeout(function() {
-          $('body').css('padding-right', bodyPaddingRight)
+          $('body').css(prop, bodyPaddingRight)
         }, bodyPaddingTimeout)
       }
     }
