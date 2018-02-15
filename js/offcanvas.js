@@ -19,6 +19,9 @@
 
 +function ($) { "use strict";
 
+  var bodyPaddingRight = false;
+  var bodyPaddingTimeout = 40;
+
   // OFFCANVAS PUBLIC CLASS DEFINITION
   // =================================
   var isIphone = (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))
@@ -162,10 +165,10 @@
     }
 
     if ($('body').width() > bodyWidth) {
-      var padding = parseInt($('body').css(prop), 10) + $('body').width() - bodyWidth
+      bodyPaddingRight = parseInt($('body').css(prop), 10) + $('body').width() - bodyWidth
 
       setTimeout(function() {
-        $('body').css(prop, padding)
+        $('body').css(prop, bodyPaddingRight)
       }, 1)
     }
     //disable scrolling on mobiles (they ignore overflow:hidden)
@@ -213,7 +216,15 @@
       }
     })
 
-    if (this.options.disableScrolling) this.disableScrolling()
+    if (this.options.disableScrolling) {
+      this.disableScrolling()
+      // Remove body padding which looks ugly after sliding is fully in.
+      if (bodyPaddingRight) {
+        setTimeout(function() {
+          $('body').css('padding-right', 0)
+        }, bodyPaddingTimeout)
+      }
+    }
     if (this.options.modal || this.options.backdrop) this.toggleBackdrop()
 
     var complete = function () {
@@ -261,7 +272,16 @@
       this.$element.trigger('hidden.bs.offcanvas')
     }
 
-    if (this.options.disableScrolling) this.enableScrolling()
+    if (this.options.disableScrolling) {
+      this.enableScrolling()
+      // Restore body padding while slide animation is working so we avoid
+      // ugly horizontal body jumping when scrollbar is enabled again.
+      if (bodyPaddingRight) {
+        setTimeout(function() {
+          $('body').css('padding-right', bodyPaddingRight)
+        }, bodyPaddingTimeout)
+      }
+    }
     if (this.options.modal || this.options.backdrop) this.toggleBackdrop()
 
     elements.removeClass('canvas-slid').addClass('canvas-sliding')
