@@ -65,13 +65,15 @@
     autohide: true,
     recalc: true,
     disableScrolling: true,
-    modal: false
+    modal: false,
+    //Minimum space between menu and screen edge
+    minspace: 68
   }
 
   OffCanvas.prototype.setWidth = function () {
     var size = this.$element.outerWidth()
     var max = $(window).width()
-    max -= 68 //Minimum space between menu and screen edge
+    max -= this.options.minspace //Minimum space between menu and screen edge
 
     this.$element.css('width', size > max ? max : size)
   }
