@@ -83,7 +83,11 @@
   };
 
   OffCanvas.prototype.setWidth = function () {
-    var size = this.$element.outerWidth();
+    // Lets use getBoundingClientRect instead of $.outerWidth() because this
+    // one is buggy (can return wrong results, maybe for position fixed element)
+    // and just recently fixed in jQuery 3.3.1.
+    // @see https://github.com/jquery/jquery/issues/3193.
+    var size = this.$element[0].getBoundingClientRect().width;
     var max = $(window).width();
     // Minimum space between menu and screen edge.
     max -= this.options.minspace;
@@ -95,10 +99,10 @@
     switch (this.placement) {
       case 'left':
       case 'right':
-        return this.$element.outerWidth();
+        return this.$element[0].getBoundingClientRect().width;
       case 'top':
       case 'bottom':
-        return this.$element.outerHeight();
+        return this.$element[0].getBoundingClientRect().height;
     }
   };
 
