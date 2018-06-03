@@ -34,7 +34,14 @@
     this.state    = null;
     this.placement = null;
     this.$calcClone = null;
+    this.absoluteElements = null;
     this.$body = $('body');
+
+    // Absolutely positioned elements that needs position adjustment for sliding
+    // method.
+    if (options.absoluteElements) {
+      this.absoluteElements = options.absoluteElements;
+    }
 
     if (this.options.recalc) {
       this.calcClone();
@@ -185,11 +192,27 @@
     }
 
     if (this.$body.width() > bodyWidth) {
+      // Difference with current body width will give us scrollbar width.
+      // This is the amount of the right margin that we need to compensate.
       bodyPaddingRight = parseInt(this.$body.css(prop), 10) + this.$body.width() - bodyWidth;
 
-      setTimeout($.proxy(function() {
+      if (this.isPushMethod()) {
+        // When we are pushing we need to tweak right body padding after
+        // some time.
+        setTimeout($.proxy(function() {
+          this.$body.css(prop, bodyPaddingRight);
+        }, this), 1);
+      }
+      else {
+        // As soon as we start sliding tweak body right padding and also check
+        // any absolutely positioned element.
         this.$body.css(prop, bodyPaddingRight);
-      }, this), 1);
+        if (this.absoluteElements) {
+          this.absoluteElements.forEach(function (element) {
+            $(element).css(prop, bodyPaddingRight);
+          });
+        }
+      }
     }
     //disable scrolling on mobiles (they ignore overflow:hidden)
     this.$body.on('touchmove.bs', function(e) {
@@ -244,8 +267,8 @@
 
     if (this.options.disableScrolling) {
       this.disableScrolling();
-      // Remove body padding which looks ugly after sliding is fully in.
-      if (bodyPaddingRight) {
+      // Remove body padding which looks ugly after push sliding is fully in.
+      if (bodyPaddingRight && this.isPushMethod()) {
         setTimeout($.proxy(function() {
           this.$body.css(prop, 0);
         }, this), bodyPaddingTimeout);
@@ -302,6 +325,12 @@
       elements.add(this.$element).add('body').each(function() {
         $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style');
       });
+      // When sliding also remove any right padding of absolute elements.
+      if (!this.isPushMethod() && this.absoluteElements) {
+        this.absoluteElements.forEach(function (element) {
+          $(element).attr('style', '');
+        });
+      }
 
       this.$element.css('width', '');
       this.$element.trigger('hidden.bs.offcanvas');
@@ -314,6 +343,12 @@
       if (bodyPaddingRight) {
         setTimeout($.proxy(function() {
           this.$body.css(prop, bodyPaddingRight);
+          // When sliding we need to do the same thing for absolute elements.
+          if (!this.isPushMethod() && this.absoluteElements) {
+            this.absoluteElements.forEach(function (element) {
+              $(element).css(prop, bodyPaddingRight);
+            });
+          }
         }, this), bodyPaddingTimeout);
       }
     }
@@ -333,6 +368,16 @@
       return;
     }
     this[this.state === 'slid' ? 'hide' : 'show']();
+  };
+
+  /**
+   * Returns true if we are using push method.
+   *
+   * @return {*|boolean}
+   */
+  OffCanvas.prototype.isPushMethod = function () {
+    // Push is happening when canvas is body.
+    return this.options.canvas && $(this.options.canvas)[0] === this.$body[0];
   };
 
   OffCanvas.prototype.toggleBackdrop = function (callback) {
