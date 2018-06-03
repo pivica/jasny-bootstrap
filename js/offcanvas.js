@@ -17,47 +17,52 @@
  * limitations under the License.
  * ======================================================================== */
 
-+function ($) { "use strict";
++function ($) {
+
+  "use strict";
 
   var bodyPaddingRight = false;
   var bodyPaddingTimeout = 40;
-  var prop = 'margin-right'
+  var prop = 'margin-right';
 
   // OFFCANVAS PUBLIC CLASS DEFINITION
   // =================================
-  var isIphone = (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))
+  var isIphone = (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i));
   var OffCanvas = function (element, options) {
-    this.$element = $(element)
-    this.options  = $.extend({}, OffCanvas.DEFAULTS, options)
-    this.state    = null
-    this.placement = null
-    this.$calcClone = null
+    this.$element = $(element);
+    this.options  = $.extend({}, OffCanvas.DEFAULTS, options);
+    this.state    = null;
+    this.placement = null;
+    this.$calcClone = null;
+    this.$body = $('body');
 
     if (this.options.recalc) {
-      this.calcClone()
-      $(window).on('resize', $.proxy(this.recalc, this))
+      this.calcClone();
+      $(window).on('resize', $.proxy(this.recalc, this));
     }
 
     if (this.options.autohide && !this.options.modal) {
       //var eventName = (navigator.userAgent.match(/(iPad|iPhone)/i) === null) ? 'click' : 'touchstart'
       // Removed for now touchstart - its making a big problem for iOS when
       // you click to collapse navbar. For some reason page will be reloaded.
-      $(document).on('click', $.proxy(this.autohide, this))
+      $(document).on('click', $.proxy(this.autohide, this));
     }
 
     // Backdrop is added to dropdown on it's open, if device is touchable (or desctop FF, https://github.com/twbs/bootstrap/issues/13748)
     // and dropdown is not inside .navbar-nav. So we remove it
-    $(this.$element).on('shown.bs.dropdown', $.proxy(function(e) {
-        $(this.$element).find('.dropdown .dropdown-backdrop').remove()
-    }, this))
+    $(this.$element).on('shown.bs.dropdown', $.proxy(function() {
+      $(this.$element).find('.dropdown .dropdown-backdrop').remove();
+    }, this));
 
     if (typeof(this.options.disablescrolling) === "boolean") {
-        this.options.disableScrolling = this.options.disablescrolling
-        delete this.options.disablescrolling
+      this.options.disableScrolling = this.options.disablescrolling;
+      delete this.options.disablescrolling;
     }
 
-    if (this.options.toggle) this.toggle()
-  }
+    if (this.options.toggle) {
+      this.toggle();
+    }
+  };
 
   OffCanvas.DEFAULTS = {
     toggle: true,
@@ -66,364 +71,416 @@
     recalc: true,
     disableScrolling: true,
     modal: false,
-    //Minimum space between menu and screen edge
+    // Minimum space between menu and screen edge.
     minspace: 68
-  }
+  };
 
   OffCanvas.prototype.setWidth = function () {
-    var size = this.$element.outerWidth()
-    var max = $(window).width()
-    max -= this.options.minspace //Minimum space between menu and screen edge
+    var size = this.$element.outerWidth();
+    var max = $(window).width();
+    // Minimum space between menu and screen edge.
+    max -= this.options.minspace;
 
-    this.$element.css('width', size > max ? max : size)
-  }
+    this.$element.css('width', size > max ? max : size);
+  };
 
   OffCanvas.prototype.offset = function () {
     switch (this.placement) {
       case 'left':
-      case 'right':  return this.$element.outerWidth()
+      case 'right':
+        return this.$element.outerWidth();
       case 'top':
-      case 'bottom': return this.$element.outerHeight()
+      case 'bottom':
+        return this.$element.outerHeight();
     }
-  }
+  };
 
   OffCanvas.prototype.calcPlacement = function () {
     if (this.options.placement !== 'auto') {
-        this.placement = this.options.placement
-        return
+        this.placement = this.options.placement;
+        return;
     }
 
     if (!this.$element.hasClass('in')) {
       this.$element.css('visiblity', 'hidden !important').addClass('in')
     }
 
-    var horizontal = $(window).width() / this.$element.width()
-    var vertical = $(window).height() / this.$element.height()
+    var horizontal = $(window).width() / this.$element.width();
+    var vertical = $(window).height() / this.$element.height();
 
-    var element = this.$element
+    var element = this.$element;
     function ab(a, b) {
-      if (element.css(b) === 'auto') return a
-      if (element.css(a) === 'auto') return b
+      if (element.css(b) === 'auto') {
+        return a;
+      }
+      if (element.css(a) === 'auto') {
+        return b;
+      }
 
-      var size_a = parseInt(element.css(a), 10)
-      var size_b = parseInt(element.css(b), 10)
+      var size_a = parseInt(element.css(a), 10);
+      var size_b = parseInt(element.css(b), 10);
 
-      return size_a > size_b ? b : a
+      return size_a > size_b ? b : a;
     }
 
-    this.placement = horizontal >= vertical ? ab('left', 'right') : ab('top', 'bottom')
+    this.placement = horizontal >= vertical ? ab('left', 'right') : ab('top', 'bottom');
 
     if (this.$element.css('visibility') === 'hidden !important') {
-      this.$element.removeClass('in').css('visiblity', '')
+      this.$element.removeClass('in').css('visiblity', '');
     }
-  }
+  };
 
   OffCanvas.prototype.opposite = function (placement) {
     switch (placement) {
-      case 'top':    return 'bottom'
-      case 'left':   return 'right'
-      case 'bottom': return 'top'
-      case 'right':  return 'left'
+      case 'top':
+        return 'bottom';
+      case 'left':
+        return 'right';
+      case 'bottom':
+        return 'top';
+      case 'right':
+        return 'left';
     }
-  }
+  };
 
   OffCanvas.prototype.getCanvasElements = function() {
     // Return a set containing the canvas plus all fixed elements
-    var canvas = this.options.canvas ? $(this.options.canvas) : this.$element
+    var canvas = this.options.canvas ? $(this.options.canvas) : this.$element;
 
     var fixed_elements = canvas.find('*').filter(function() {
       return getComputedStyle(this).getPropertyValue('position') === 'fixed'
-    }).not(this.options.exclude)
+    }).not(this.options.exclude);
 
     return canvas.add(fixed_elements)
-  }
+  };
 
   OffCanvas.prototype.slide = function (elements, offset, callback) {
-    var placement = this.placement
-    var opposite = this.opposite(placement)
+    var placement = this.placement;
+    var opposite = this.opposite(placement);
 
     elements.each(function() {
-      if ($(this).css(placement) !== 'auto')
-        $(this).css(placement, (parseInt($(this).css(placement), 10) || 0) + offset)
+      if ($(this).css(placement) !== 'auto') {
+        $(this).css(placement, (parseInt($(this).css(placement), 10) || 0) + offset);
+      }
 
-      if ($(this).css(opposite) !== 'auto')
-        $(this).css(opposite, (parseInt($(this).css(opposite), 10) || 0) - offset)
-    })
+      if ($(this).css(opposite) !== 'auto') {
+        $(this).css(opposite, (parseInt($(this).css(opposite), 10) || 0) - offset);
+      }
+    });
 
     this.$element.one("transitionend", callback);
-  }
+  };
 
   OffCanvas.prototype.disableScrolling = function() {
-    var bodyWidth = $('body').width()
+    var bodyWidth = this.$body.width();
 
-    if ($('body').data('offcanvas-style') === undefined) {
-      $('body').data('offcanvas-style', $('body').attr('style') || '')
+    if (this.$body.data('offcanvas-style') === undefined) {
+      this.$body.data('offcanvas-style', this.$body.attr('style') || '');
     }
 
-    $('body').css('overflow', 'hidden')
+    this.$body.css('overflow', 'hidden');
     //Fix iPhone scrolling
     if (isIphone) {
-      $('body').addClass('lockIphone');
+      this.$body.addClass('lockIphone');
     }
 
-    if ($('body').width() > bodyWidth) {
-      bodyPaddingRight = parseInt($('body').css(prop), 10) + $('body').width() - bodyWidth
+    if (this.$body.width() > bodyWidth) {
+      bodyPaddingRight = parseInt(this.$body.css(prop), 10) + this.$body.width() - bodyWidth;
 
-      setTimeout(function() {
-        $('body').css(prop, bodyPaddingRight)
-      }, 1)
+      setTimeout($.proxy(function() {
+        this.$body.css(prop, bodyPaddingRight);
+      }, this), 1);
     }
     //disable scrolling on mobiles (they ignore overflow:hidden)
-    $('body').on('touchmove.bs', function(e) {
+    this.$body.on('touchmove.bs', function(e) {
       if (!$(event.target).closest('.offcanvas').length)
         e.preventDefault();
     });
-  }
+  };
 
   OffCanvas.prototype.enableScrolling = function() {
-    $('body').off('touchmove.bs');
-    $('body').removeClass('lockIphone');
-  }
+    this.$body.off('touchmove.bs');
+    this.$body.removeClass('lockIphone');
+  };
 
   OffCanvas.prototype.show = function () {
-    if (this.state) return
+    if (this.state) {
+      return;
+    }
 
-    var startEvent = $.Event('show.bs.offcanvas')
-    this.$element.trigger(startEvent)
-    if (startEvent.isDefaultPrevented()) return
+    var startEvent = $.Event('show.bs.offcanvas');
+    this.$element.trigger(startEvent);
+    if (startEvent.isDefaultPrevented()) {
+      return;
+    }
 
-    this.state = 'slide-in'
-    this.$element.css('width', '')
-    this.calcPlacement()
-    this.setWidth()
+    this.state = 'slide-in';
+    this.$element.css('width', '');
+    this.calcPlacement();
+    this.setWidth();
 
-    var elements = this.getCanvasElements()
-    var placement = this.placement
-    var opposite = this.opposite(placement)
-    var offset = this.offset()
+    var elements = this.getCanvasElements();
+    var placement = this.placement;
+    var opposite = this.opposite(placement);
+    var offset = this.offset();
 
     if (elements.index(this.$element) !== -1) {
-      $(this.$element).data('offcanvas-style', $(this.$element).attr('style') || '')
-      this.$element.css(placement, -1 * offset)
-      this.$element.css(placement); // Workaround: Need to get the CSS property for it to be applied before the next line of code
+      $(this.$element).data('offcanvas-style', $(this.$element).attr('style') || '');
+      this.$element.css(placement, -1 * offset);
+      // Workaround: Need to get the CSS property for it to be applied before
+      // the next line of code.
+      this.$element.css(placement);
     }
 
     elements.addClass('canvas-sliding').each(function() {
-      var $this = $(this)
-      if ($this.data('offcanvas-style') === undefined) $this.data('offcanvas-style', $this.attr('style') || '')
-      if ($this.css('position') === 'static' && !isIphone) $this.css('position', 'relative')
+      var $this = $(this);
+      if ($this.data('offcanvas-style') === undefined) $this.data('offcanvas-style', $this.attr('style') || '');
+      if ($this.css('position') === 'static' && !isIphone) $this.css('position', 'relative');
       if (($this.css(placement) === 'auto' || $this.css(placement) === '0px') &&
           ($this.css(opposite) === 'auto' || $this.css(opposite) === '0px')) {
-        $this.css(placement, 0)
+        $this.css(placement, 0);
       }
-    })
+    });
 
     if (this.options.disableScrolling) {
-      this.disableScrolling()
+      this.disableScrolling();
       // Remove body padding which looks ugly after sliding is fully in.
       if (bodyPaddingRight) {
-        setTimeout(function() {
-          $('body').css(prop, 0)
-        }, bodyPaddingTimeout)
+        setTimeout($.proxy(function() {
+          this.$body.css(prop, 0);
+        }, this), bodyPaddingTimeout);
       }
     }
-    if (this.options.modal || this.options.backdrop) this.toggleBackdrop()
+    if (this.options.modal || this.options.backdrop) {
+      this.toggleBackdrop();
+    }
 
     var complete = function () {
-      if (this.state != 'slide-in') return
+      if (this.state !== 'slide-in') {
+        return;
+      }
 
-      this.state = 'slid'
+      this.state = 'slid';
 
-      elements.removeClass('canvas-sliding').addClass('canvas-slid')
-      this.$element.trigger('shown.bs.offcanvas')
-    }
+      elements.removeClass('canvas-sliding').addClass('canvas-slid');
+      this.$element.trigger('shown.bs.offcanvas');
+    };
 
     setTimeout($.proxy(function() {
-      this.$element.addClass('in')
-      this.slide(elements, offset, $.proxy(complete, this))
-    }, this), 1)
-  }
+      this.$element.addClass('in');
+      this.slide(elements, offset, $.proxy(complete, this));
+    }, this), 1);
+  };
 
-  OffCanvas.prototype.hide = function (fast) {
-    if (this.state !== 'slid') return
-
-    var startEvent = $.Event('hide.bs.offcanvas')
-    this.$element.trigger(startEvent)
-    if (startEvent.isDefaultPrevented()) return
-
-    this.state = 'slide-out'
-
-    var elements = $('.canvas-slid')
-    var placement = this.placement
-    var offset = -1 * this.offset()
-
-    var complete = function () {
-      if (this.state != 'slide-out') return
-
-      this.state = null
-      this.placement = null
-
-      this.$element.removeClass('in')
-
-      elements.removeClass('canvas-sliding')
-      elements.add(this.$element).add('body').each(function() {
-        $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style')
-      })
-
-      this.$element.css('width', '')
-      this.$element.trigger('hidden.bs.offcanvas')
+  OffCanvas.prototype.hide = function () {
+    if (this.state !== 'slid') {
+      return;
     }
 
+    var startEvent = $.Event('hide.bs.offcanvas');
+    this.$element.trigger(startEvent);
+    if (startEvent.isDefaultPrevented()) {
+      return;
+    }
+
+    this.state = 'slide-out';
+
+    var elements = $('.canvas-slid');
+    var offset = -1 * this.offset();
+
+    var complete = function () {
+      if (this.state !== 'slide-out') {
+        return;
+      }
+
+      this.state = null;
+      this.placement = null;
+
+      this.$element.removeClass('in');
+
+      elements.removeClass('canvas-sliding');
+      elements.add(this.$element).add('body').each(function() {
+        $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style');
+      });
+
+      this.$element.css('width', '');
+      this.$element.trigger('hidden.bs.offcanvas');
+    };
+
     if (this.options.disableScrolling) {
-      this.enableScrolling()
+      this.enableScrolling();
       // Restore body padding while slide animation is working so we avoid
       // ugly horizontal body jumping when scrollbar is enabled again.
       if (bodyPaddingRight) {
-        setTimeout(function() {
-          $('body').css(prop, bodyPaddingRight)
-        }, bodyPaddingTimeout)
+        setTimeout($.proxy(function() {
+          this.$body.css(prop, bodyPaddingRight);
+        }, this), bodyPaddingTimeout);
       }
     }
-    if (this.options.modal || this.options.backdrop) this.toggleBackdrop()
+    if (this.options.modal || this.options.backdrop) {
+      this.toggleBackdrop();
+    }
 
-    elements.removeClass('canvas-slid').addClass('canvas-sliding')
+    elements.removeClass('canvas-slid').addClass('canvas-sliding');
 
     setTimeout($.proxy(function() {
-      this.slide(elements, offset, $.proxy(complete, this))
-    }, this), 1)
-  }
+      this.slide(elements, offset, $.proxy(complete, this));
+    }, this), 1);
+  };
 
   OffCanvas.prototype.toggle = function () {
-    if (this.state === 'slide-in' || this.state === 'slide-out') return
-    this[this.state === 'slid' ? 'hide' : 'show']()
-  }
+    if (this.state === 'slide-in' || this.state === 'slide-out') {
+      return;
+    }
+    this[this.state === 'slid' ? 'hide' : 'show']();
+  };
 
   OffCanvas.prototype.toggleBackdrop = function (callback) {
-    callback = callback || $.noop
-    var time = 150
+    callback = callback || $.noop;
+    var time = 150;
 
-    if (this.state == 'slide-in') {
-      this.$backdrop = $('<div class="modal-backdrop fade" />')
+    if (this.state === 'slide-in') {
+      this.$backdrop = $('<div class="modal-backdrop fade" />');
       if (this.options.backdrop) {
-        this.$backdrop.addClass('allow-navbar')
+        this.$backdrop.addClass('allow-navbar');
 
-        if (this.options.canvas && $(this.options.canvas)[0] !== $('body')[0]) {
-          $(this.options.canvas).addClass('limit-backdrop')
-          this.$backdrop.appendTo(this.options.canvas)
+        if (this.options.canvas && $(this.options.canvas)[0] !== this.$body[0]) {
+          $(this.options.canvas).addClass('limit-backdrop');
+          this.$backdrop.appendTo(this.options.canvas);
         } else {
-          this.$backdrop.insertAfter(this.$element)
+          this.$backdrop.insertAfter(this.$element);
         }
       } else {
-        this.$backdrop.insertAfter(this.$element)
+        this.$backdrop.insertAfter(this.$element);
       }
 
-      if (doAnimate) this.$backdrop[0].offsetWidth // force reflow
+      // Force reflow.
+      // @todo - doAnimate does not exist?
+      //if (doAnimate) {
+      //  this.$backdrop[0].offsetWidth;
+      //}
 
-      this.$backdrop.addClass('in')
-      this.$backdrop.on('click.bs', $.proxy(this.autohide, this))
-      this.$backdrop.one('transitionend', callback)
-    } else if (this.state == 'slide-out' && this.$backdrop) {
+      this.$backdrop.addClass('in');
+      this.$backdrop.on('click.bs', $.proxy(this.autohide, this));
+      this.$backdrop.one('transitionend', callback);
+    }
+    else if (this.state === 'slide-out' && this.$backdrop) {
       this.$backdrop.removeClass('in');
-      $('body').off('touchmove.bs');
+      this.$body.off('touchmove.bs');
       var self = this;
       this.$backdrop.one('transitionend', function() {
         self.$backdrop.remove();
-        callback()
+        callback();
         self.$backdrop = null;
       });
 
-      if (this.options.canvas && $(this.options.canvas)[0] !== $('body')[0]) {
-        var canvas = this.options.canvas
+      if (this.options.canvas && $(this.options.canvas)[0] !== this.$body[0]) {
+        var canvas = this.options.canvas;
         setTimeout(function() {
           $(canvas).removeClass('limit-backdrop')
-        }, time)
+        }, time);
       }
-    } else if (callback) {
+    }
+    else if (callback) {
       callback()
     }
-  }
+  };
 
   OffCanvas.prototype.calcClone = function() {
-    this.$calcClone = $('.offcanvas-clone')
+    this.$calcClone = $('.offcanvas-clone');
 
     if (!this.$calcClone.length) {
       this.$calcClone = this.$element.clone()
         .addClass('offcanvas-clone')
-        .appendTo($('body'))
-        .html('')
+        .appendTo(this.$body)
+        .html('');
     }
 
-    this.$calcClone.removeClass('in')
-  }
+    this.$calcClone.removeClass('in');
+  };
 
   OffCanvas.prototype.recalc = function () {
-    if (this.$calcClone.css('display') === 'none' || (this.state !== 'slid' && this.state !== 'slide-in')) return
+    if (this.$calcClone.css('display') === 'none' || (this.state !== 'slid' && this.state !== 'slide-in')) {
+      return;
+    }
 
-    this.state = null
-    this.placement = null
-    var elements = this.getCanvasElements()
+    this.state = null;
+    this.placement = null;
+    var elements = this.getCanvasElements();
 
-    this.$element.trigger('hide.bs.offcanvas')
-    this.$element.removeClass('in')
+    this.$element.trigger('hide.bs.offcanvas');
+    this.$element.removeClass('in');
 
-    elements.removeClass('canvas-slid')
+    elements.removeClass('canvas-slid');
     elements.add(this.$element).add('body').each(function() {
-      $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style')
-    })
+      $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style');
+    });
 
-    this.$element.trigger('hidden.bs.offcanvas')
-  }
+    this.$element.trigger('hidden.bs.offcanvas');
+  };
 
   OffCanvas.prototype.autohide = function (e) {
-    if ($(e.target).closest(this.$element).length === 0) this.hide()
+    if ($(e.target).closest(this.$element).length === 0) {
+      this.hide();
+    }
     var target = $(e.target);
-    if (!target.hasClass('dropdown-backdrop') && $(e.target).closest(this.$element).length === 0) this.hide()
-  }
+    if (!target.hasClass('dropdown-backdrop') && $(e.target).closest(this.$element).length === 0) {
+      this.hide();
+    }
+  };
 
   // OFFCANVAS PLUGIN DEFINITION
   // ==========================
 
-  var old = $.fn.offcanvas
+  var old = $.fn.offcanvas;
 
   $.fn.offcanvas = function (option) {
     return this.each(function () {
-      var $this   = $(this)
-      var data    = $this.data('bs.offcanvas')
-      var options = $.extend({}, OffCanvas.DEFAULTS, $this.data(), typeof option === 'object' && option)
+      var $this   = $(this);
+      var data    = $this.data('bs.offcanvas');
+      var options = $.extend({}, OffCanvas.DEFAULTS, $this.data(), typeof option === 'object' && option);
 
-      if (!data) $this.data('bs.offcanvas', (data = new OffCanvas(this, options)))
-      if (typeof option === 'string') data[option]()
+      if (!data) {
+        $this.data('bs.offcanvas', (data = new OffCanvas(this, options)));
+      }
+      if (typeof option === 'string') {
+        data[option]();
+      }
     })
-  }
+  };
 
-  $.fn.offcanvas.Constructor = OffCanvas
+  $.fn.offcanvas.Constructor = OffCanvas;
 
 
   // OFFCANVAS NO CONFLICT
   // ====================
 
   $.fn.offcanvas.noConflict = function () {
-    $.fn.offcanvas = old
-    return this
-  }
+    $.fn.offcanvas = old;
+    return this;
+  };
 
 
   // OFFCANVAS DATA-API
   // =================
 
   $(document).on('click.bs.offcanvas.data-api', '[data-toggle=offcanvas]', function (e) {
-    var $this   = $(this), href
+    var $this   = $(this), href;
     var target  = $this.attr('data-target')
-        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
-    var $canvas = $(target)
-    var data    = $canvas.data('bs.offcanvas')
-    var option  = data ? 'toggle' : $this.data()
+        || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, ''); //strip for ie7
+    var $canvas = $(target);
+    var data    = $canvas.data('bs.offcanvas');
+    var option  = data ? 'toggle' : $this.data();
 
     e.preventDefault();
-    e.stopPropagation()
+    e.stopPropagation();
 
-    if (data) data.toggle()
-      else $canvas.offcanvas(option)
+    if (data) {
+      data.toggle();
+    }
+    else {
+      $canvas.offcanvas(option);
+    }
   })
 
 }(window.jQuery);
