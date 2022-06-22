@@ -112,9 +112,6 @@
         return;
     }
 
-    if (!this.$element.hasClass('in')) {
-      this.$element.css('visiblity', 'hidden !important').addClass('in')
-    }
 
     var horizontal = $(window).width() / this.$element.width();
     var vertical = $(window).height() / this.$element.height();
@@ -135,10 +132,6 @@
     }
 
     this.placement = horizontal >= vertical ? ab('left', 'right') : ab('top', 'bottom');
-
-    if (this.$element.css('visibility') === 'hidden !important') {
-      this.$element.removeClass('in').css('visiblity', '');
-    }
   };
 
   OffCanvas.prototype.opposite = function (placement) {
@@ -243,8 +236,16 @@
 
     this.state = 'slide-in';
     this.$element.css('width', '');
+    // Show the element so we can properly calculate needed dimensions.
+    if (!this.$element.hasClass('in')) {
+      this.$element.css('visiblity', 'hidden !important').addClass('in');
+    }
     this.calcPlacement();
     this.setWidth();
+    // Hide the element after all needed calculations.
+    if (this.$element.css('visibility') === 'hidden !important') {
+      this.$element.removeClass('in').css('visiblity', '');
+    }
 
     var elements = this.getCanvasElements();
     var placement = this.placement;
