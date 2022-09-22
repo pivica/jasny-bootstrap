@@ -238,19 +238,19 @@
     this.$element.css('width', '');
     // Show the element so we can properly calculate needed dimensions.
     if (!this.$element.hasClass('in')) {
-      this.$element.css('visiblity', 'hidden !important').addClass('in');
+      this.$element.css('visibility', 'hidden').addClass('in');
     }
     this.calcPlacement();
     this.setWidth();
+    var offset = this.offset();
     // Hide the element after all needed calculations.
-    if (this.$element.css('visibility') === 'hidden !important') {
-      this.$element.removeClass('in').css('visiblity', '');
+    if (this.$element.css('visibility') === 'hidden') {
+      this.$element.removeClass('in').css('visibility', '');
     }
 
     var elements = this.getCanvasElements();
     var placement = this.placement;
     var opposite = this.opposite(placement);
-    var offset = this.offset();
 
     if (elements.index(this.$element) !== -1) {
       $(this.$element).data('offcanvas-style', $(this.$element).attr('style') || '');
