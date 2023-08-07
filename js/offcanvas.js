@@ -341,7 +341,7 @@
       this.$element.trigger('hidden.bs.offcanvas');
     };
 
-    if (this.options.disableScrolling) {
+    if (this.options.disableScrolling && this.isPushMethod()) {
       this.enableScrolling();
       // Restore body padding while slide animation is working so we avoid
       // ugly horizontal body jumping when scrollbar is enabled again.
