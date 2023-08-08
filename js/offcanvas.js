@@ -213,7 +213,7 @@
     }
     //disable scrolling on mobiles (they ignore overflow:hidden)
     this.$body.on('touchmove.bs', function(e) {
-      if (!$(event.target).closest('.offcanvas').length)
+      if (!$(e.target).closest('.offcanvas').length)
         e.preventDefault();
     });
   };
