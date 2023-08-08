@@ -327,15 +327,21 @@
       this.$element.removeClass('in');
 
       elements.removeClass('canvas-sliding');
-      elements.add(this.$element).add('body').each(function() {
-        $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style');
-      });
-      // When sliding also remove any right padding of absolute elements.
-      if (!this.isPushMethod() && this.absoluteElements) {
-        this.absoluteElements.forEach(function (element) {
-          $(element).attr('style', '');
+      // Because below disableScrolling is using setTimeout, we need to use
+      // setTimeout here also in order to avoid any race thread problems and
+      // to control better that first disableScrolling is done and then
+      // this code here.
+      setTimeout($.proxy(function() {
+        elements.add(this.$element).add('body').each(function() {
+          $(this).attr('style', $(this).data('offcanvas-style')).removeData('offcanvas-style');
         });
-      }
+        // When sliding also remove any right padding of absolute elements.
+        if (!this.isPushMethod() && this.absoluteElements) {
+          this.absoluteElements.forEach(function (element) {
+            $(element).attr('style', '');
+          });
+        }
+      }, this), 250);
 
       this.$element.css('width', '');
       this.$element.trigger('hidden.bs.offcanvas');
