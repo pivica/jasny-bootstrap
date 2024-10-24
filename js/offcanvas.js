@@ -347,11 +347,11 @@
       this.$element.trigger('hidden.bs.offcanvas');
     };
 
-    if (this.options.disableScrolling && this.isPushMethod()) {
+    if (this.options.disableScrolling) {
       this.enableScrolling();
       // Restore body padding while slide animation is working so we avoid
       // ugly horizontal body jumping when scrollbar is enabled again.
-      if (bodyPaddingRight) {
+      if (bodyPaddingRight && this.isPushMethod()) {
         setTimeout($.proxy(function() {
           this.$body.css(prop, bodyPaddingRight);
           // When sliding we need to do the same thing for absolute elements.
